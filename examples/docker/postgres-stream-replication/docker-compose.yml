@@ -21,8 +21,8 @@ services:
       context: primary
     ports:
       - 5432
-        volumes:
-          - ./pg_data:/var/lib/postgresql/data
+#    volumes:
+#      - pg_data:/var/lib/postgresql/data
     environment:
       - POSTGRES_REPLICATION_USER=repl_user
       - POSTGRES_REPLICATION_PASSWORD=repl_password
@@ -41,12 +41,12 @@ services:
     environment:
       - POSTGRES_REPLICATION_USER=repl_user
       - POSTGRES_REPLICATION_PASSWORD=repl_password
-      - POSTGRES_REPLICAyTION_PRIMARY_HOST=pg_primary
+      - POSTGRES_REPLICATION_PRIMARY_HOST=pg_primary
       - POSTGRES_REPLICATION_PRIMARY_PORT=5432
     depends_on:
       - pg_primary
       - consul
     links:
       - pg_primary
-volumes:
-  pg_data:
+#volumes:
+#  pg_data:
