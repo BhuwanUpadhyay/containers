@@ -15,6 +15,10 @@ help:
 build: ## Build the project
 	docker-compose build --no-cache
 
+##@ Release
+publish: ## Publish the project
+	docker-compose push
+
 ##@ Deployment
 deploy: ## Deploy in docker swarm
 	docker stack deploy --compose-file docker-compose.yml ${DEPLOYMENT_NAME}
