@@ -10,7 +10,7 @@ networks:
 services:
 
   db_replica:
-    image: bhuwanupadhyay/postgres-stream-replication-replica
+    image: bhuwanupadhyay/postgres-stream-replication-replica:latest
     build:
       context: replica
     ports:
@@ -33,7 +33,7 @@ services:
         condition: on-failure
 
   db_primary:
-    image: bhuwanupadhyay/postgres-stream-replication-primary
+    image: bhuwanupadhyay/postgres-stream-replication-primary:latest
     build:
       context: primary
     ports:

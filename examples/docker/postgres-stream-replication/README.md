@@ -1,0 +1,61 @@
+# PostgreSQL Stream Replication
+
+## Docker Compose Example
+
+```yaml
+version: '3.7'
+
+volumes:
+  postgres_data: {}
+
+networks:
+  db:
+    external: false
+
+services:
+
+  db_replica:
+    image: bhuwanupadhyay/postgres-stream-replication-replica:latest
+    ports:
+      - 5432
+    environment:
+      - POSTGRES_REPLICATION_USER=repl_user
+      - POSTGRES_REPLICATION_PASSWORD=repl_password
+      - POSTGRES_REPLICATION_PRIMARY_HOST=db_primary
+      - POSTGRES_REPLICATION_PRIMARY_PORT=5432
+    depends_on:
+      - db_primary
+    networks:
+      - db
+    deploy:
+      replicas: 3
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+
+  db_primary:
+    image: bhuwanupadhyay/postgres-stream-replication-primary:latest
+    ports:
+      - 5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_REPLICATION_USER=repl_user
+      - POSTGRES_REPLICATION_PASSWORD=repl_password
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=employees_db
+      - POSTGRES_REPLICATION_LOGIN_CONNECTION_LIMIT=100
+    networks:
+      - db
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+```
+
+```
+docker stack deploy --compose-file docker-compose.yml example
+```
