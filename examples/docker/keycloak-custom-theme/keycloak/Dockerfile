@@ -1,3 +1,3 @@
-FROM jboss/keycloak:7.0.0
+FROM jboss/keycloak:9.0.3
 
-ADD apicurio /opt/jboss/keycloak/themes/apicurio
+ADD my-theme /opt/jboss/keycloak/themes/my-theme

@@ -1,33 +1,40 @@
 version: '3'
 
 volumes:
-  mysql2:
+  keycloak_postgres:
+
+networks:
+  keycloak:
+    external: false
 
 services:
-  jboss-keycloak-mysql:
-    image: 'percona:5.7'
+  keycloak-postgres:
+    image: 'postgres:9.6.17-alpine'
     environment:
-      MYSQL_DATABASE: ${KC_MYSQL_DATABASE}
-      MYSQL_ROOT_PASSWORD: ${KC_MYSQL_ROOT_PASSWORD}
-      MYSQL_USER: ${KC_MYSQL_USER}
-      MYSQL_PASSWORD: ${KC_MYSQL_PASSWORD}
+      POSTGRES_DB: ${KC_POSTGRES_DATABASE:-keycloak}
+      POSTGRES_USER: ${KC_POSTGRES_USER:-keycloak}
+      POSTGRES_PASSWORD: ${KC_POSTGRES_PASSWORD:-keycloak}
     volumes:
-      - 'mysql2:/var/lib/mysql'
-
-  jboss-keycloak:
-    image: 'as-keycloak'
+      - 'keycloak_postgres:/var/lib/postgresql/data'
+    networks:
+      - keycloak
+  keycloak:
+    image: bhuwanupadhyay/keycloak-custom-theme:latest
     build: ./keycloak
-    depends_on: [jboss-keycloak-mysql]
+    depends_on:
+      - keycloak-postgres
     ports:
-      - '8090:8080'
+      - '9990:9990'
+      - '8080:8080'
     volumes:
-      - ./config/keycloak:/microcks-keycloak-config
+      - ./config:/keycloak-config
     environment:
-      KEYCLOAK_USER: ${KEYCLOAK_USER}
-      KEYCLOAK_PASSWORD: ${KEYCLOAK_PASSWORD}
-      KEYCLOAK_IMPORT: /microcks-keycloak-config/apicurio-realm.json,/microcks-keycloak-config/microcks-realm.json
-
-      DB_VENDOR: ${DB_VENDOR}
-      DB_ADDR: ${DB_ADDR:jboss-keycloak-mysql}
-      DB_USER: ${DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD}
+      KEYCLOAK_USER: ${KEYCLOAK_USER:-admin}
+      KEYCLOAK_PASSWORD: ${KEYCLOAK_PASSWORD:-admin}
+#      KEYCLOAK_IMPORT: /keycloak-config/my-realm.json
+      DB_VENDOR: ${DB_VENDOR:-postgres}
+      DB_ADDR: ${DB_ADDR:-keycloak-postgres}
+      DB_USER: ${DB_USER:-keycloak}
+      DB_PASSWORD: ${DB_PASSWORD:-keycloak}
+    networks:
+      - keycloak
